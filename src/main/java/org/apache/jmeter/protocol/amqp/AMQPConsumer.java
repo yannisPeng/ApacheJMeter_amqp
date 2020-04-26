@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.ConsumerCancelledException;
+import com.rabbitmq.client.Delivery;
 import com.rabbitmq.client.ShutdownSignalException;
 
 /**
@@ -48,7 +49,7 @@ public class AMQPConsumer extends AMQPSampler {
     private transient String consumerTag;
     private transient QueueingConsumer consumer;
 
-    public AMQPConsumer(){
+    public AMQPConsumer() {
         super();
     }
 
@@ -70,7 +71,6 @@ public class AMQPConsumer extends AMQPSampler {
         try {
             initChannel();
 
-            // only do this once per thread. Otherwise it slows down the consumption by appx 50%
             if (consumer == null) {
                 log.info("Creating consumer");
                 consumer = new QueueingConsumer(channel);
@@ -86,13 +86,17 @@ public class AMQPConsumer extends AMQPSampler {
         }
 
         result.setSampleLabel(getTitle());
-
         result.sampleStart();
-        try {
-            if (!autoAck())
-                channel.basicConsume(getQueue(), consumer);
+        Delivery delivery = null;
 
-            // commit the sample.
+        try {
+            int loop = getIterationsAsInt();
+            for (int idx = 0; idx < loop; idx++) {
+                if (!autoAck())
+                    resultMsg = channel.basicConsume(getQueue(), consumer);
+                result.setResponseMessage(resultMsg);
+            }
+
             if (getUseTx()) {
                 channel.txCommit();
             }

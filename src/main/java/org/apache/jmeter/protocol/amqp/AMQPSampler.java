@@ -71,6 +71,8 @@ public abstract class AMQPSampler extends AbstractSampler implements TestStateLi
     private static final String QUEUE_REDECLARE = "AMQPSampler.Redeclare";
     private static final String QUEUE_EXCLUSIVE = "AMQPSampler.QueueExclusive";
     private static final String QUEUE_AUTO_DELETE = "AMQPSampler.QueueAutoDelete";
+    private static final String ITERATIONS = "AMQPSampler.Iterations";
+
     private static final int DEFAULT_HEARTBEAT = 1;
 
     private transient ConnectionFactory factory;
@@ -321,6 +323,13 @@ public abstract class AMQPSampler extends AbstractSampler implements TestStateLi
         return getPropertyAsInt(MESSAGE_EXPIRES);
     }
 
+    public String getIterations() {
+        return getPropertyAsString(ITERATIONS, DEFAULT_ITERATIONS_STRING);
+    }
+
+    public void setIterations(String s) {
+        setProperty(ITERATIONS, s);
+    }
 
     public String getHost() {
         return getPropertyAsString(HOST);
@@ -346,6 +355,11 @@ public abstract class AMQPSampler extends AbstractSampler implements TestStateLi
         }
         return getPropertyAsInt(PORT);
     }
+
+    public int getIterationsAsInt() {
+        return getPropertyAsInt(ITERATIONS);
+    }
+
 
     public void setConnectionSSL(String content) {
         setProperty(SSL, content);
